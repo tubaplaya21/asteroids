@@ -4,9 +4,8 @@ export default class Ship {
   constructor(x,y) {
     this.x = x;
     this.y = y;
-    this.xFront = this.x;
-    this.xBackLeft = this.x-7;
-    this.xBackRight = this.x+7;
+    this.sprite = new Image();
+    this.sprite.src = 'ship.png';
     this.rotation = null;
     this.velocity = {
       x: 0,
@@ -24,26 +23,47 @@ export default class Ship {
     var rotation = input.direction;
     switch (rotation) {
       case 'right':
-        this.velocity.direction += .0013;
+        this.velocity.direction += 3;
         break;
       case 'left':
-        this.velocity.direction -= .0013;
+        this.velocity.direction -= 3;
         break;
     }
+    if(this.velocity.direction > 180) {
+      this.velocity.direction -= 360;
+    }
+    if(this.velocity.direction < -180) {
+      this.velocity.direction += 360;
+    }
+    if(this.velocity.direction < 90 && this.velocity.direction > -90) {
+      this.facingUD = 'up';
+    }
+    if((this.velocity.direction > 90 && this.velocity.direction <= 180)
+        || (this.velocity.direction < -90 && this.velocity.direction >= -180)) {
+      this.facingUD = 'down';
+    }
+    if(this.velocity.direction > 0 && this.velocity.direction < 180) {
+      this.facingLR = 'left';
+    }
+    if(this.velocity.direction < 0 && this.velocity.direction > -180) {
+      this.facingLR = 'right';
+    }
+
     if(input.thrusters == 'on') {
       if(this.velocity.x <= 8 && this.velocity.x >= -8) {
-        this.velocity.x += 0.3*Math.sin(this.velocity.direction*180/Math.PI);
+        this.velocity.x += 0.35*(Math.sin(this.velocity.direction*Math.PI/180));
       }
-      if((this.velocity.x >= 8 && this.velocity.x <= 9 && -Math.cos(this.velocity.direction*180/Math.PI) < 0)
-          || (this.velocity.x <= -8 && this.velocity.x >= -9 && -Math.cos(this.velocity.direction*180/Math.PI) > 0)) {
-        this.velocity.x += 0.3*(-Math.cos(this.velocity.direction*180/Math.PI));
+      else if((this.velocity.x >= 8 && (this.velocity.direction < 0 && this.velocity.direction > -180))
+          || (this.velocity.x <= -8 && (this.velocity.direction > 0 && this.velocity.direction < 180))) {
+        this.velocity.x += 0.35*(Math.sin(this.velocity.direction*Math.PI/180));
       }
       if(this.velocity.y <= 8 && this.velocity.y >= -8) {
-        this.velocity.y += 0.3*(-Math.cos(this.velocity.direction*180/Math.PI));
+        this.velocity.y += 0.35*(-Math.cos(this.velocity.direction*Math.PI/180));
       }
-      if((this.velocity.y >= 8 && this.velocity.y <= 9 && -Math.cos(this.velocity.direction*180/Math.PI) < 0)
-          || (this.velocity.y <= -8 && this.velocity.y >= -9 && -Math.cos(this.velocity.direction*180/Math.PI) > 0)) {
-        this.velocity.y += 0.3*(-Math.cos(this.velocity.direction*180/Math.PI));
+      else if((this.velocity.y <= -8 && ((this.velocity.direction > 90 && this.velocity.direction <= 180)
+          || (this.velocity.direction < -90 && this.velocity.direction >= -180))
+          || (this.velocity.y >= 8 && this.velocity.direction < 90 && this.velocity.direction > -90))) {
+        this.velocity.y += 0.35*(-Math.cos(this.velocity.direction*Math.PI/180));
       }
     }
 
@@ -66,16 +86,11 @@ export default class Ship {
   render(ctx) {
     ctx.save();
     ctx.lineWidth = 1.25;
-    ctx.strokestyle = '#000';
-    ctx.translate(this.x,this.y+11.5);
-    ctx.rotate(this.velocity.direction*180/Math.PI);
-    ctx.translate(-(this.x),-(this.y+11.5));
-    ctx.beginPath();
-    ctx.moveTo(this.x,this.y);
-    ctx.lineTo(this.x+7,this.y+23);
-    ctx.lineTo(this.x-7,this.y+23);
-    ctx.closePath();
-    ctx.stroke();
+    ctx.strokeStyle = '#000';
+    ctx.translate(this.x+10,this.y+11.5);
+    ctx.rotate(this.velocity.direction*Math.PI/180);
+    ctx.translate(-(this.x+this.sprite.width/2),-(this.y+this.sprite.height/2));
+    ctx.drawImage(this.sprite,this.x,this.y);
     ctx.restore();
   }
 }

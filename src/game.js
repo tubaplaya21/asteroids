@@ -10,6 +10,7 @@ export default class Game {
     this.gameStarted = false;
     this.gamePaused = false;
     this.ship = new Ship(562.5,375);
+    this.asteroids = new Asteroid(2,150,150,2,300);
     // Create the back buffer canvas
     this.backBufferCanvas = document.createElement('canvas');
     this.backBufferCanvas.width = 1125;
@@ -50,7 +51,6 @@ export default class Game {
         break;
       case 'ArrowUp':
         this.input.thrusters = 'on';
-        console.log(this.ship.velocity.x);
         break;
       case ' ':
         this.gameStarted = true;
@@ -73,6 +73,7 @@ export default class Game {
 
   update() {
     this.ship.update(this.input);
+    //this.asteroids.update();
   }
 
   render() {
@@ -81,6 +82,7 @@ export default class Game {
     //this.backBufferContext.fillStyle = 'white';
     //this.backBufferContext.fillRect(0,0,1125,75);
     this.ship.render(this.backBufferContext);
+    this.asteroids.render(this.backBufferContext);
     this.screenBufferContext.drawImage(this.backBufferCanvas,0,0);
   }
 
