@@ -9,8 +9,18 @@ export default class Game {
     this.input = {direction: null,thrusters: 'off'};
     this.gameStarted = false;
     this.gamePaused = false;
+    this.asteroidNum = 10;
     this.ship = new Ship(562.5,375);
-    this.asteroids = new Asteroid(2,150,150,2,300);
+    this.asteroids = [];
+    for(var i = 0; i < this.asteroidNum; i++) {
+      var x = 500;
+      var y = 375;
+      do {
+        x = Math.random()*1125;
+        y = Math.random()*750;
+      } while(x > 460 && x < 660 && y > 275 && y < 475);
+      this.asteroids.push(new Asteroid((Math.random()*2),x,y,(Math.random()*2+1),(Math.random()*360)));
+    }
     // Create the back buffer canvas
     this.backBufferCanvas = document.createElement('canvas');
     this.backBufferCanvas.width = 1125;
@@ -73,7 +83,9 @@ export default class Game {
 
   update() {
     this.ship.update(this.input);
-    //this.asteroids.update();
+    for(var i = 0; i < this.asteroids.length; i++) {
+      this.asteroids[i].update();
+    }
   }
 
   render() {
@@ -82,7 +94,9 @@ export default class Game {
     //this.backBufferContext.fillStyle = 'white';
     //this.backBufferContext.fillRect(0,0,1125,75);
     this.ship.render(this.backBufferContext);
-    this.asteroids.render(this.backBufferContext);
+    for(var i = 0; i < this.asteroids.length; i++) {
+      this.asteroids[i].render(this.backBufferContext);
+    }
     this.screenBufferContext.drawImage(this.backBufferCanvas,0,0);
   }
 

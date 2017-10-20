@@ -6,6 +6,7 @@ export default class Ship {
     this.y = y;
     this.sprite = new Image();
     this.sprite.src = 'ship.png';
+    console.log(this.sprite.width,this.sprite.height);
     this.rotation = null;
     this.velocity = {
       x: 0,
@@ -23,10 +24,10 @@ export default class Ship {
     var rotation = input.direction;
     switch (rotation) {
       case 'right':
-        this.velocity.direction += 3;
+        this.velocity.direction += 4;
         break;
       case 'left':
-        this.velocity.direction -= 3;
+        this.velocity.direction -= 4;
         break;
     }
     if(this.velocity.direction > 180) {
@@ -50,20 +51,20 @@ export default class Ship {
     }
 
     if(input.thrusters == 'on') {
-      if(this.velocity.x <= 8 && this.velocity.x >= -8) {
-        this.velocity.x += 0.35*(Math.sin(this.velocity.direction*Math.PI/180));
+      if(this.velocity.x <= 6 && this.velocity.x >= -6) {
+        this.velocity.x += 0.4*(Math.sin(this.velocity.direction*Math.PI/180));
       }
-      else if((this.velocity.x >= 8 && (this.velocity.direction < 0 && this.velocity.direction > -180))
-          || (this.velocity.x <= -8 && (this.velocity.direction > 0 && this.velocity.direction < 180))) {
-        this.velocity.x += 0.35*(Math.sin(this.velocity.direction*Math.PI/180));
+      else if((this.velocity.x >= 6 && (this.velocity.direction < 0 && this.velocity.direction > -180))
+          || (this.velocity.x <= -6 && (this.velocity.direction > 0 && this.velocity.direction < 180))) {
+        this.velocity.x += 0.4*(Math.sin(this.velocity.direction*Math.PI/180));
       }
-      if(this.velocity.y <= 8 && this.velocity.y >= -8) {
-        this.velocity.y += 0.35*(-Math.cos(this.velocity.direction*Math.PI/180));
+      if(this.velocity.y <= 6 && this.velocity.y >= -6) {
+        this.velocity.y += 0.4*(-Math.cos(this.velocity.direction*Math.PI/180));
       }
-      else if((this.velocity.y <= -8 && ((this.velocity.direction > 90 && this.velocity.direction <= 180)
+      else if((this.velocity.y <= -6 && ((this.velocity.direction > 90 && this.velocity.direction <= 180)
           || (this.velocity.direction < -90 && this.velocity.direction >= -180))
-          || (this.velocity.y >= 8 && this.velocity.direction < 90 && this.velocity.direction > -90))) {
-        this.velocity.y += 0.35*(-Math.cos(this.velocity.direction*Math.PI/180));
+          || (this.velocity.y >= 6 && this.velocity.direction < 90 && this.velocity.direction > -90))) {
+        this.velocity.y += 0.4*(-Math.cos(this.velocity.direction*Math.PI/180));
       }
     }
 
@@ -90,7 +91,7 @@ export default class Ship {
     ctx.translate(this.x+10,this.y+11.5);
     ctx.rotate(this.velocity.direction*Math.PI/180);
     ctx.translate(-(this.x+this.sprite.width/2),-(this.y+this.sprite.height/2));
-    ctx.drawImage(this.sprite,this.x,this.y);
+    ctx.drawImage(this.sprite,this.x,this.y,16.37,24);
     ctx.restore();
   }
 }
