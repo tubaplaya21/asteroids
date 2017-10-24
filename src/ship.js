@@ -1,26 +1,35 @@
 // ship.js
+import Laser from './laser';
 
 export default class Ship {
   constructor(x,y) {
     this.x = x;
     this.y = y;
-    this.sprite = new Image();
-    this.sprite.src = 'ship.png';
-    console.log(this.sprite.width,this.sprite.height);
-    this.rotation = null;
     this.velocity = {
       x: 0,
       y: 0,
       direction: 0
     };
+    this.lasers = [];
+    this.sprite = new Image();
+    this.sprite.src = 'ship.png';
+    this.vertices = [
+                      {x: 8,y: 0},
+                      {x: 4,y: 12},
+                      {x: 12,y: 12},
+                      {x: 0,y: 24},
+                      {x: 16,y: 24}
+    ];
+    this.rads = this.velocity.direction*Math.PI/180;
+    this.rotation = null;
+    this.height = this.sprite.height;
+    this.width = this.sprite.width;
 
     this.update = this.update.bind(this);
     this.render = this.render.bind(this);
   }
 
   update(input) {
-    var x = this.x;
-    var y = this.y;
     var rotation = input.direction;
     switch (rotation) {
       case 'right':
@@ -88,10 +97,10 @@ export default class Ship {
     ctx.save();
     ctx.lineWidth = 1.25;
     ctx.strokeStyle = '#000';
-    ctx.translate(this.x+10,this.y+11.5);
+    ctx.translate(this.x+this.sprite.width/2,this.y+this.sprite.height/2);
     ctx.rotate(this.velocity.direction*Math.PI/180);
     ctx.translate(-(this.x+this.sprite.width/2),-(this.y+this.sprite.height/2));
-    ctx.drawImage(this.sprite,this.x,this.y,16.37,24);
+    ctx.drawImage(this.sprite,this.x,this.y,16,24);
     ctx.restore();
   }
 }

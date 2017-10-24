@@ -6,11 +6,13 @@ import Asteroid from './asteroid';
 
 export default class Game {
   constructor() {
-    this.input = {direction: null,thrusters: 'off'};
+    this.input = {direction: null,thrusters: 'off',laser:'inactive'};
     this.gameStarted = false;
     this.gamePaused = false;
     this.asteroidNum = 10;
+    this.timer = 0;
     this.ship = new Ship(562.5,375);
+    this.lasers = [];
     this.asteroids = [];
     for(var i = 0; i < this.asteroidNum; i++) {
       var x = 500;
@@ -19,7 +21,7 @@ export default class Game {
         x = Math.random()*1125;
         y = Math.random()*750;
       } while(x > 460 && x < 660 && y > 275 && y < 475);
-      this.asteroids.push(new Asteroid((Math.random()*2),x,y,(Math.random()*2+1),(Math.random()*360)));
+      this.asteroids.push(new Asteroid((Math.floor(Math.random()*3)),x,y,(Math.random()*2+1),(Math.random()*360)));
     }
     // Create the back buffer canvas
     this.backBufferCanvas = document.createElement('canvas');
@@ -40,6 +42,8 @@ export default class Game {
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.hitTest = this.hitTest.bind(this);
+    this.hitBoxTest = this.hitBoxTest.bind(this);
     this.update = this.update.bind(this);
     this.render = this.render.bind(this);
     this.loop = this.loop.bind(this);
@@ -63,7 +67,7 @@ export default class Game {
         this.input.thrusters = 'on';
         break;
       case ' ':
-        this.gameStarted = true;
+        this.input.laser = 'active';
         break;
     }
   }
@@ -79,12 +83,77 @@ export default class Game {
     if(event.key == 'ArrowUp' && this.input.thrusters == 'on') {
       this.input.thrusters = 'off';
     }
+    if(event.key == ' ' && this.input.laser == 'active') {
+      this.input.laser = 'inactive';
+    }
+  }
+
+  handleKeyPress(event) {
+    if(event.key == ' ' && this.input.laser == 'active') {
+      this.timer = performance.now();
+    }
+  }
+
+  hitTest(source,target) {
+    var isHit = false;
+
+    if(this.hitBoxTest(source,target)) {
+      isHit = true;
+    }
+    return isHit;
+  }
+
+  hitBoxTest(source,target) {
+    var sc = Math.abs(Math.cos(source.rads));
+    var tc = Math.abs(Math.cos(target.rads));
+    var ss = Math.abs(Math.sin(source.rads));
+    var ts = Math.abs(Math.sin(target.rads));
+    var sWidth = source.height*ss + source.width*sc;
+    var tWidth = target.height*ts + target.width*tc;
+    var sHeight = source.height*sc + source.width*ss;
+    var tHeight = target.height*tc + target.width*ts;
+    return!(
+            ((source.y + sHeight) < target.y) ||
+            (source.y > (target.y + tHeight)) ||
+            ((source.x + sWidth) < target.x)  ||
+            (source.x > (target.x + tWidth))
+    );
   }
 
   update() {
+
     this.ship.update(this.input);
     for(var i = 0; i < this.asteroids.length; i++) {
       this.asteroids[i].update();
+    }
+    for(var i = 0; i < this.lasers.length; i++) {
+      this.lasers[i].update();
+    }
+    for(var i = 0; i < this.lasers.length; i++) {
+      if(this.lasers[i].x < 0 || this.lasers[i].x > 1125 || this.lasers[i].y < 0 || this.lasers[i].y > 750) {
+        this.lasers.splice(i,1);
+      }
+    }
+    for(var i = 0; i < this.asteroids.length; i++) {
+      for(var j = 0; j < this.lasers.length; j++) {
+        if(this.hitTest(this.asteroids[i],this.lasers[j])) {
+          this.lasers.splice(j,1);
+          if(this.asteroids[i].mass == 0) this.asteroids.splice(i,1);
+          else {
+            var angle = Math.random()*360;
+            this.asteroids.push(new Asteroid(this.asteroids[i].mass-1,this.asteroids[i].x+4,this.asteroids[i].y,(Math.random()*2+1),angle));
+            this.asteroids.push(new Asteroid(this.asteroids[i].mass-1,this.asteroids[i].x-4,this.asteroids[i].y,(Math.random()*2+1),360-angle))
+            this.asteroids.splice(i,1);
+          }
+        }
+      }
+    }
+
+    if(this.input.laser == 'active') {
+      if(performance.now()-this.timer > 200) {
+        this.lasers.push(new Laser(this.ship.x+this.ship.sprite.width/2,this.ship.y+this.ship.sprite.height/2,this.ship.velocity));
+        this.timer = performance.now();
+      }
     }
   }
 
@@ -95,7 +164,12 @@ export default class Game {
     //this.backBufferContext.fillRect(0,0,1125,75);
     this.ship.render(this.backBufferContext);
     for(var i = 0; i < this.asteroids.length; i++) {
-      this.asteroids[i].render(this.backBufferContext);
+      if(!this.asteroids[i].isDestroyed){
+        this.asteroids[i].render(this.backBufferContext);
+      }
+    }
+    for(var i = 0; i < this.lasers.length;i++) {
+      if(this.lasers[i] != null) this.lasers[i].render(this.backBufferContext);
     }
     this.screenBufferContext.drawImage(this.backBufferCanvas,0,0);
   }
