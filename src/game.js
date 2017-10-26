@@ -13,6 +13,7 @@ export default class Game {
     this.lives = 3;
     this.score = 0;
     this.timer = 0;
+    this.timer2 = 0;
     this.ship = new Ship(562.5,375);
     this.lasers = [];
     this.asteroids = [];
@@ -27,6 +28,7 @@ export default class Game {
     }
     this.explosion = new Audio('explosion.wav');
     this.laser = new Audio('laser.wav');
+    this.death = new Audio('death.wav');
     // Create the back buffer canvas
     this.backBufferCanvas = document.createElement('canvas');
     this.backBufferCanvas.width = 1125;
@@ -38,6 +40,13 @@ export default class Game {
     this.screenBufferCanvas.height = 750;
     document.body.appendChild(this.screenBufferCanvas);
     this.screenBufferContext = this.screenBufferCanvas.getContext('2d');
+    // Create HTML UI Elements
+    var instructions = document.createElement('div');
+    instructions.id = 'instructions';
+    instructions.setAttribute('style', 'white-space: pre;');
+    instructions.style.fontSize = 'large';
+    instructions.textContent = 'Shoot: SPACE\r\nAccelerate: UP ARROW\r\nTurn Left: LEFT ARROW\r\nTurn Right: RIGHT ARROW';
+    document.body.appendChild(instructions);
     // Create HTML UI Elements
     var message = document.createElement('div');
     message.id = "message";
@@ -135,6 +144,25 @@ export default class Game {
     );
   }
 
+  newLevel() {
+    this.asteroidNum += 5;
+    for(var i = 0; i < this.asteroidNum; i++) {
+      var x = 500;
+      var y = 375;
+      do {
+        x = Math.random()*1125;
+        y = Math.random()*750;
+      } while(x > 460 && x < 660 && y > 275 && y < 475);
+      this.asteroids.push(new Asteroid((Math.floor(Math.random()*3)),x,y,(Math.random()*2+1),(Math.random()*360)));
+    }
+    this.ship = new Ship(562.5,375);
+  }
+
+  endGame() {
+    var message = document.getElementById("message");
+    message.innerText = "Game Over";
+  }
+
   update() {
     var message = document.getElementById("message");
     if(!this.gameStarted) message.innerText = "Press Space to start";
@@ -153,6 +181,27 @@ export default class Game {
           this.lasers.splice(i,1);
         }
         i++
+      }
+      i = 0;
+      while(i < this.asteroids.length && !this.ship.isImmune) {
+        if(this.hitTest(this.asteroids[i],this.ship)) {
+          this.lives -= 1;
+          this.death.play();
+          this.ship = new Ship(562.5,375);
+          this.ship.isImmune = true;
+          this.timer2 = performance.now();
+        }
+        i++;
+      }
+      if(this.asteroids.length == 0) {
+        this.newLevel();
+      }
+      if(this.lives == 0) {
+        this.gameOver = true;
+        this.endGame();
+      }
+      if(this.ship.isImmune) {
+        if(performance.now()-this.timer2 > 3000) this.ship.isImmune = false;
       }
       i = 0;
       while(i < this.asteroids.length) {

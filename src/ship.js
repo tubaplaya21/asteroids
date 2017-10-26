@@ -24,6 +24,7 @@ export default class Ship {
     this.rotation = null;
     this.height = this.sprite.height;
     this.width = this.sprite.width;
+    this.isImmune = false;
 
     this.update = this.update.bind(this);
     this.render = this.render.bind(this);
@@ -39,41 +40,43 @@ export default class Ship {
         this.velocity.direction -= 4;
         break;
     }
-    if(this.velocity.direction > 180) {
+    if(!this.isImmune) {
+      if(this.velocity.direction > 180) {
       this.velocity.direction -= 360;
-    }
-    if(this.velocity.direction < -180) {
-      this.velocity.direction += 360;
-    }
-    if(this.velocity.direction < 90 && this.velocity.direction > -90) {
-      this.facingUD = 'up';
-    }
-    if((this.velocity.direction > 90 && this.velocity.direction <= 180)
-        || (this.velocity.direction < -90 && this.velocity.direction >= -180)) {
-      this.facingUD = 'down';
-    }
-    if(this.velocity.direction > 0 && this.velocity.direction < 180) {
-      this.facingLR = 'left';
-    }
-    if(this.velocity.direction < 0 && this.velocity.direction > -180) {
-      this.facingLR = 'right';
-    }
+      }
+      if(this.velocity.direction < -180) {
+        this.velocity.direction += 360;
+      }
+      if(this.velocity.direction < 90 && this.velocity.direction > -90) {
+        this.facingUD = 'up';
+      }
+      if((this.velocity.direction > 90 && this.velocity.direction <= 180)
+          || (this.velocity.direction < -90 && this.velocity.direction >= -180)) {
+        this.facingUD = 'down';
+      }
+      if(this.velocity.direction > 0 && this.velocity.direction < 180) {
+        this.facingLR = 'left';
+      }
+      if(this.velocity.direction < 0 && this.velocity.direction > -180) {
+        this.facingLR = 'right';
+      }
 
-    if(input.thrusters == 'on') {
-      if(this.velocity.x <= 6 && this.velocity.x >= -6) {
-        this.velocity.x += 0.4*(Math.sin(this.velocity.direction*Math.PI/180));
-      }
-      else if((this.velocity.x >= 6 && (this.velocity.direction < 0 && this.velocity.direction > -180))
-          || (this.velocity.x <= -6 && (this.velocity.direction > 0 && this.velocity.direction < 180))) {
-        this.velocity.x += 0.4*(Math.sin(this.velocity.direction*Math.PI/180));
-      }
-      if(this.velocity.y <= 6 && this.velocity.y >= -6) {
-        this.velocity.y += 0.4*(-Math.cos(this.velocity.direction*Math.PI/180));
-      }
-      else if((this.velocity.y <= -6 && ((this.velocity.direction > 90 && this.velocity.direction <= 180)
-          || (this.velocity.direction < -90 && this.velocity.direction >= -180))
-          || (this.velocity.y >= 6 && this.velocity.direction < 90 && this.velocity.direction > -90))) {
-        this.velocity.y += 0.4*(-Math.cos(this.velocity.direction*Math.PI/180));
+      if(input.thrusters == 'on') {
+        if(this.velocity.x <= 6 && this.velocity.x >= -6) {
+          this.velocity.x += 0.4*(Math.sin(this.velocity.direction*Math.PI/180));
+        }
+        else if((this.velocity.x >= 6 && (this.velocity.direction < 0 && this.velocity.direction > -180))
+            || (this.velocity.x <= -6 && (this.velocity.direction > 0 && this.velocity.direction < 180))) {
+          this.velocity.x += 0.4*(Math.sin(this.velocity.direction*Math.PI/180));
+        }
+        if(this.velocity.y <= 6 && this.velocity.y >= -6) {
+          this.velocity.y += 0.4*(-Math.cos(this.velocity.direction*Math.PI/180));
+        }
+        else if((this.velocity.y <= -6 && ((this.velocity.direction > 90 && this.velocity.direction <= 180)
+            || (this.velocity.direction < -90 && this.velocity.direction >= -180))
+            || (this.velocity.y >= 6 && this.velocity.direction < 90 && this.velocity.direction > -90))) {
+          this.velocity.y += 0.4*(-Math.cos(this.velocity.direction*Math.PI/180));
+        }
       }
     }
 
