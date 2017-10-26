@@ -16,12 +16,13 @@ export default class Asteroid {
         this.sprite.src = 'asteroidLarge.png';
         break;
     }
+    this.speed = speed;
     this.velocity = {
       x: speed*Math.sin(direction*Math.PI/180),
       y: speed*(-Math.cos(direction*Math.PI/180)),
       direction: direction
     };
-    this.rads = this.velocity.direction*Math.PI/180;
+    this.rads = direction*Math.PI/180;
     this.height = this.sprite.height - 2;
     this.width = this.sprite.width - 2;
     this.mass = mass;
